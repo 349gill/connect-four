@@ -2,6 +2,7 @@
 import random
 import numpy as np
 import time
+import copy
 
 
 class Game:
@@ -14,7 +15,7 @@ class Board:
     def __init__(self, rows, cols) -> None:
         self.position = np.full((rows, cols), "_")
         self.vacant_squares = rows*cols
-        self.turn = 'O'
+        self.turn = 'X'
         self.last_move = 0, 0
 
     def state(self):
@@ -46,12 +47,9 @@ class Board:
             for i in range(self.position.shape[0]-1, -1, -1):
                 if self.position[i][col] == '_':
                     self.position[i][col] = self.turn
-                    self.vacant_squares -= 1
-                    print(f"{self.turn} marked {i},{col}")
                     self.turn = 'X' if self.turn == 'O' else 'O'
                     self.last_move = i, col
                     return
-        self.move(int(input(str(col)+" is an invalid move, try again!")))
 
     def rand(self):
         col = random.randrange(self.position.shape[1])
@@ -59,8 +57,40 @@ class Board:
             return self.rand()
         self.move(col)
 
-    def minimax(self):
-        pass
+    # Minimax without pruning
+    def minimax(self, board, maximizing):
+        if self.state() == 1:
+            return 0, None
+        elif self.state() == 'O':
+            return -1, None
+        elif self.state() == 'X':
+            return 1, None
+        if maximizing == True:
+            max_eval = -2
+            best_move = None
+
+            for col in range(0, self.position.shape[1]):
+                if self.position[0][col] == '_':
+                    temp = copy.deepcopy(board)
+                    temp.move(col)
+                    eval = self.minimax(temp, False)[0]
+                    if eval > max_eval:
+                        max_eval = eval
+                        best_move = col
+                return max_eval, best_move
+        elif maximizing == False:
+            min_eval = 2
+            best_move = None
+
+            for col in range(0, self.position.shape[1]):
+                if self.position[0][col] == '_':
+                    temp = copy.deepcopy(board)
+                    temp.move(col)
+                    eval = self.minimax(temp, True)[0]
+                    if eval < min_eval:
+                        max_eval = eval
+                        best_move = col
+                return min_eval, best_move
 
     def negamax(self):
         pass
@@ -75,13 +105,14 @@ def main():
         if game.board.turn == 'O':
             game.board.move(int(input("Your turn, pick a column(0-7)!")))
             print(game.board.position)
+            game.board.vacant_squares -= 1
             current_state = game.board.state()
             if current_state != 0:
                 break
         if game.board.turn == 'X':
-            game.board.rand()
-            time.sleep(0.75)
+            game.board.move(game.board.minimax(game.board, True))
             print(game.board.position)
+            game.board.vacant_squares -= 1
             current_state = game.board.state()
     if current_state == 1:
         print("Draw!")
