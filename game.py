@@ -36,7 +36,7 @@ class Board:
                     return diag[i]
         opp_diag = np.diag(np.rot90(self.position), x+y-self.position.shape[0])
         if opp_diag.size >= 4:
-            for i in range(diag.size-3):
+            for i in range(opp_diag.size-3):
                 if opp_diag[i] == opp_diag[i+1] == opp_diag[i+2] == opp_diag[i+3] != '_':
                     return diag[i]
         return 0
