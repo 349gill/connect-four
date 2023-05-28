@@ -81,9 +81,9 @@ class Board:
                     if eval > max_eval:
                         max_eval = eval
                         best_move = col
-                alpha = max(alpha, max_eval)
-                if alpha >= beta:
-                    break
+                    alpha = max(alpha, max_eval)
+                    if alpha >= beta:
+                        break
             return max_eval, best_move
         elif maximizing == False:
             min_eval = 100000
