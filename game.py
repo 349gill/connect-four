@@ -1,7 +1,6 @@
 # Implementing Connect Four on CLI
 import random
 import numpy as np
-import time
 import copy
 
 
@@ -15,7 +14,7 @@ class Board:
     def __init__(self, rows, cols) -> None:
         self.position = np.full((rows, cols), "_")
         self.vacant_squares = rows*cols
-        self.turn = 'X'
+        self.turn = 'O'
         self.last_move = 0, 0
 
     def state(self):
@@ -23,7 +22,7 @@ class Board:
             return 1
         for i in range(self.position.shape[0]-1, -1, -1):
             for j in range(0, self.position.shape[1]):
-                if j < self.position.shape[0]-3:
+                if j < self.position.shape[1]-3:
                     if self.position[i][j] == self.position[i][j+1] == self.position[i][j+2] == self.position[i][j+3] != '_':
                         return self.position[i][j]
                 if i > 2:
@@ -57,43 +56,51 @@ class Board:
             return self.rand()
         self.move(col)
 
-    # Minimax without pruning
-    def minimax(self, board, maximizing):
+    def score(self):
+        score = 0
+    # Minimax
+
+    def minimax(self, board, depth, alpha, beta, maximizing):
         if self.state() == 1:
             return 0, None
         elif self.state() == 'O':
-            return -1, None
+            return -1000, None
         elif self.state() == 'X':
-            return 1, None
+            return 1000, None
+        if depth == 0:
+            return self.score(), None
         if maximizing == True:
-            max_eval = -2
+            max_eval = -100000
             best_move = None
 
             for col in range(0, self.position.shape[1]):
                 if self.position[0][col] == '_':
                     temp = copy.deepcopy(board)
                     temp.move(col)
-                    eval = self.minimax(temp, False)[0]
+                    eval = self.minimax(temp, depth-1, alpha, beta, False)[0]
                     if eval > max_eval:
                         max_eval = eval
                         best_move = col
-                return max_eval, best_move
+                alpha = max(alpha, max_eval)
+                if alpha >= beta:
+                    break
+            return max_eval, best_move
         elif maximizing == False:
-            min_eval = 2
+            min_eval = 100000
             best_move = None
 
             for col in range(0, self.position.shape[1]):
                 if self.position[0][col] == '_':
                     temp = copy.deepcopy(board)
                     temp.move(col)
-                    eval = self.minimax(temp, True)[0]
+                    eval = self.minimax(temp, depth-1, alpha, beta, True)[0]
                     if eval < min_eval:
                         max_eval = eval
                         best_move = col
-                return min_eval, best_move
-
-    def negamax(self):
-        pass
+                    beta = min(beta, min_eval)
+                    if alpha >= beta:
+                        break
+            return min_eval, best_move
 
 
 def main():
@@ -110,7 +117,7 @@ def main():
             if current_state != 0:
                 break
         if game.board.turn == 'X':
-            game.board.move(game.board.minimax(game.board, True))
+            game.board.rand()
             print(game.board.position)
             game.board.vacant_squares -= 1
             current_state = game.board.state()
