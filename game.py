@@ -65,9 +65,9 @@ class Board:
         elif window.count(piece) == 3 and window.count('_') == 1:
             score += 10
         elif window.count(piece) == 2 and window.count('_') == 2:
-            score += 5
+            score += 3
         if window.count(min_player) == 3 and window.count('_') == 1:
-            score -= 10
+            score -= 20
         return score
 
     def score(self, board, piece):
@@ -103,9 +103,9 @@ class Board:
         if self.state() == 1:
             return 0, None
         elif self.state() == 'O':
-            return -1000, None
+            return -10000, None
         elif self.state() == 'X':
-            return 1000, None
+            return 10000, None
         if depth == 0:
             return self.score(board, 'X'), None
         if maximizing == True:
@@ -121,7 +121,7 @@ class Board:
                         max_eval = eval
                         best_move = col
                     alpha = max(alpha, max_eval)
-                    if alpha >= beta:
+                    if alpha > beta:
                         break
             return max_eval, best_move
         elif maximizing == False:
@@ -137,7 +137,7 @@ class Board:
                         max_eval = eval
                         best_move = col
                     beta = min(beta, min_eval)
-                    if alpha >= beta:
+                    if alpha > beta:
                         break
             return min_eval, best_move
 
@@ -169,7 +169,7 @@ def main():
                 break
         if turn == 'X':
             col = game.board.minimax(
-                game.board.position, 5, -100000, 100000, True)[1]
+                game.board.position, 4, -100000, 100000, True)[1]
             game.board.last_move = emp(game.board.position, col), col
             game.board.move('X', game.board.position, col)
             print(game.board.position)
